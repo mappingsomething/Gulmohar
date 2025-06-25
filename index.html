@@ -28,12 +28,13 @@
   }).addTo(map);
 
   // 3. Define your custom icon (using updated SVG path)
-  var customIcon = L.icon({
-    iconUrl: 'https://i.postimg.cc/fbhJ5Bw8/icon-gukmohar.png',
-    iconSize: [30, 30],        // icon size
-    iconAnchor: [15, 30],       // bottom-center anchor
-    popupAnchor: [0, -30]       // popup above icon
-  });
+ var marker = L.circleMarker([lat, lng], {
+    radius: 8, // size of the circle
+    color: "#F9F7DC", // stroke color
+    fillColor: "#FF8E88", // fill color (your hex code)
+    fillOpacity: 0.6, // adjust as needed
+    weight: 1 // border thickness
+});
 
   // 4. Load GeoJSON file and apply custom icon
   fetch('https://raw.githubusercontent.com/mappingsomething/Gulmohar/refs/heads/main/Gulmohar.geojson')
