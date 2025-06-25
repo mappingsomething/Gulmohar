@@ -27,22 +27,19 @@
     maxZoom: 19
   }).addTo(map);
 
-  // 3. Define your custom icon (using updated SVG path)
- var marker = L.circleMarker([lat, lng], {
-    radius: 8, // size of the circle
-    color: "#F9F7DC", // stroke color
-    fillColor: "#FF8E88", // fill color (your hex code)
-    fillOpacity: 0.6, // adjust as needed
-    weight: 1 // border thickness
-});
-
-  // 4. Load GeoJSON file and apply custom icon
+  // 3. Load GeoJSON and add circle markers
   fetch('https://raw.githubusercontent.com/mappingsomething/Gulmohar/refs/heads/main/Gulmohar.geojson')
     .then(response => response.json())
     .then(data => {
       L.geoJSON(data, {
         pointToLayer: function (feature, latlng) {
-          return L.marker(latlng, { icon: customIcon });
+          return L.circleMarker(latlng, {
+            radius: 8,
+            color: "#F9F7DC",       // border color
+            fillColor: "#FF8E88",   // fill color
+            fillOpacity: 0.6,
+            weight: 1
+          });
         },
         onEachFeature: function (feature, layer) {
           if (feature.properties && feature.properties.name) {
