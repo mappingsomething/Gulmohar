@@ -42,8 +42,8 @@
           });
         },
         onEachFeature: function (feature, layer) {
-          if (feature.properties && feature.properties.name) {
-            layer.bindPopup(feature.properties.name);
+          if (feature.properties && feature.properties.photo) {
+            layer.bindPopup(feature.properties.photo);
           }
         }
       }).addTo(map);
