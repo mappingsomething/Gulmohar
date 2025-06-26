@@ -1,46 +1,41 @@
-<!DOCTYPE html>  
+<!DOCTYPE html>
 <html>
 <head>
-  <title>Gulmohar Tree Entries June 23, 2025</title>
+  <title>Gulmohar Tree Entries - Mapping Flora</title>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
   <style>
     #map { height: 100vh; width: 100%; }
-
     .leaflet-popup-content {
-      max-width: 500px !important;
+      max-width: 400px !important;  /* make popup wider */
     }
-
     .popup-img {
       width: 100%;
       height: auto;
-      max-width: 500px;
       border-radius: 8px;
       margin-top: 8px;
     }
   </style>
 </head>
 <body>
-
 <div id="map"></div>
 
 <script>
-  // 1. Initialize map centered on Bengaluru
   var map = L.map('map').setView([12.9716, 77.5946], 13);
 
-  // 2. Add Carto Voyager base map
+  // Base map
   L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
     attribution: '&copy; OpenStreetMap contributors & Carto',
     subdomains: 'abcd',
     maxZoom: 19
   }).addTo(map);
 
-  // 3. Load GeoJSON and add circle markers with popups
-  fetch('https://raw.githubusercontent.com/mappingsomething/Gulmohar/refs/heads/main/Gulmohar.geojson')
+  // Load GeoJSON
+  fetch('https://raw.githubusercontent.com/mappingsomething/Gulmohar/main/Gulmohar.geojson')
     .then(response => response.json())
     .then(data => {
       L.geoJSON(data, {
@@ -55,19 +50,29 @@
         },
         onEachFeature: function (feature, layer) {
           var props = feature.properties;
-          if (props["image_emd"] && props["timestamp"]) {
-            var popupContent = `
-              <b>Spotted:</b> ${props["timestamp"]}<br>
-              <img class="popup-img" src="${props["image_emd"]}" alt="Gulmohar Image" />
-            `;
-            layer.bindPopup(popupContent);
-          } else {
-            layer.bindPopup("Gulmohar spotted, details unavailable.");
+          var content = '';
+
+          if (props.timestamp) {
+            content += `<b>Spotted:</b> ${props.timestamp}<br>`;
           }
+
+          if (props.image_emd) {
+            content += `
+              <img 
+                class="popup-img" 
+                src="${props.image_emd}" 
+                alt="Gulmohar Image" 
+                referrerpolicy="no-referrer"
+              />
+            `;
+          } else {
+            content += `<i>No image available</i>`;
+          }
+
+          layer.bindPopup(content);
         }
       }).addTo(map);
     });
 </script>
-
 </body>
 </html>
