@@ -43,42 +43,36 @@
     }).addTo(map);
 
     // Load your GeoJSON
-    fetch("https://raw.githubusercontent.com/mappingsomething/Gulmohar/main/Gulmohar.geojson")
-      .then(res => res.json())
-      .then(data => {
-        L.geoJSON(data, {
-          pointToLayer: function (feature, latlng) {
-            return L.circleMarker(latlng, {
-              radius: 6,
-              fillColor: "#FF5733",
-              color: "#fff",
-              weight: 1,
-              opacity: 1,
-              fillOpacity: 0.8
-            });
-          },
-          onEachFeature: function (feature, layer) {
-            const props = feature.properties;
-            let popupContent = `<b>Spotted:</b> ${props.timestamp || 'Unknown'}<br>`;
-
-            if (props.image_emd) {
-              popupContent += `
-                <img 
-                  src="${props.image_emd}" 
-                  class="popup-img" 
-                  alt="Gulmohar Image"
-                  referrerpolicy="no-referrer"
-                  onerror="this.onerror=null;this.src='https://via.placeholder.com/350x200?text=Image+Unavailable';"
-                />
-              `;
-            } else {
-              popupContent += `<i>No image available</i>`;
-            }
-
-            layer.bindPopup(popupContent);
-          }
-        }).addTo(map);
-      });
+fetch("https://raw.githubusercontent.com/mappingsomething/Gulmohar/main/Gulmohar.geojson")
+  .then(res => res.json())
+  .then(data => {
+    L.geoJSON(data, {
+      pointToLayer: function (feature, latlng) {
+        return L.circleMarker(latlng, {
+          radius: 6,
+          fillColor: "#FF5733",
+          color: "#fff",
+          weight: 1,
+          opacity: 1,
+          fillOpacity: 0.8
+        });
+      },
+      onEachFeature: function (feature, layer) {
+        var props = feature.properties;
+        if (props["image_emd"] && props["timestamp"]) {
+          var popupContent = `
+            <div style="max-width: 350px;">
+              <b>Spotted:</b> ${props["timestamp"]}<br>
+              <img src="${props["image_emd"]}" alt="Tree image" 
+                   style="width: 100%; border-radius: 8px; margin-top: 6px;"
+                   onerror="this.style.display='none'" />
+            </div>
+          `;
+          layer.bindPopup(popupContent, { maxWidth: 400 });
+        }
+      }
+    }).addTo(map);
+  });
   </script>
 </body>
 </html>
