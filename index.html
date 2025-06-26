@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Gulmohar Tree Entries - Mapping Flora</title>
+  <title>Mapping Flora - Gulmohar Map</title>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
@@ -9,15 +9,20 @@
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
   <style>
-    #map { height: 100vh; width: 100%; }
+    #map { height: 100vh; width: 100vw; }
+
     .leaflet-popup-content {
-      max-width: 400px !important;  /* make popup wider */
+      width: 350px !important;
+      max-width: 400px !important;
     }
+
     .popup-img {
       width: 100%;
-      height: auto;
+      max-height: 300px;
+      object-fit: contain;
       border-radius: 8px;
-      margin-top: 8px;
+      margin-top: 10px;
+      display: block;
     }
   </style>
 </head>
@@ -25,51 +30,46 @@
 <div id="map"></div>
 
 <script>
-  var map = L.map('map').setView([12.9716, 77.5946], 13);
+  const map = L.map('map').setView([12.9716, 77.5946], 13);
 
-  // Base map
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-    attribution: '&copy; OpenStreetMap contributors & Carto',
-    subdomains: 'abcd',
-    maxZoom: 19
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap contributors'
   }).addTo(map);
 
-  // Load GeoJSON
-  fetch('https://raw.githubusercontent.com/mappingsomething/Gulmohar/main/Gulmohar.geojson')
-    .then(response => response.json())
+  fetch("https://raw.githubusercontent.com/mappingsomething/Gulmohar/main/Gulmohar.geojson")
+    .then(res => res.json())
     .then(data => {
       L.geoJSON(data, {
         pointToLayer: function (feature, latlng) {
           return L.circleMarker(latlng, {
-            radius: 8,
-            color: "#F9F7DC",
-            fillColor: "#FF8E88",
-            fillOpacity: 0.6,
-            weight: 1
+            radius: 6,
+            fillColor: "#FF5733",
+            color: "#fff",
+            weight: 1,
+            opacity: 1,
+            fillOpacity: 0.8
           });
         },
         onEachFeature: function (feature, layer) {
-          var props = feature.properties;
-          var content = '';
-
-          if (props.timestamp) {
-            content += `<b>Spotted:</b> ${props.timestamp}<br>`;
-          }
+          const props = feature.properties;
+          let popupContent = `<b>Spotted:</b> ${props.timestamp || 'Unknown'}<br>`;
 
           if (props.image_emd) {
-            content += `
+            popupContent += `
               <img 
-                class="popup-img" 
                 src="${props.image_emd}" 
-                alt="Gulmohar Image" 
+                class="popup-img" 
+                alt="Gulmohar Tree"
                 referrerpolicy="no-referrer"
+                onerror="this.onerror=null;this.src='https://via.placeholder.com/300x200?text=Image+Unavailable';"
               />
             `;
           } else {
-            content += `<i>No image available</i>`;
+            popupContent += `<i>No image available</i>`;
           }
 
-          layer.bindPopup(content);
+          layer.bindPopup(popupContent);
         }
       }).addTo(map);
     });
