@@ -1,39 +1,63 @@
-<!DOCTYPE html>
+<!DOCTYPE html>  
 <html>
 <head>
-  <title>Gulmohar Map</title>
+  <title>Gulmohar Tree Entries June 23, 2025</title>
   <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-  <style>#map { height: 600px; }</style>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <style>
+    #map { height: 100vh; width: 100%; }
+    .popup-img {
+      max-width: 200px;
+      margin-top: 8px;
+      border-radius: 8px;
+    }
+  </style>
 </head>
 <body>
-  <div id="map"></div>
 
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
- <script>
-  var map = L.map('map').setView([12.9716, 77.5946], 13); // Adjust coordinates as needed
+<div id="map"></div>
 
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap contributors'
+<script>
+  // 1. Initialize map centered on Bengaluru
+  var map = L.map('map').setView([12.9716, 77.5946], 13);
+
+  // 2. Add Carto Voyager base map
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; OpenStreetMap contributors & Carto',
+    subdomains: 'abcd',
+    maxZoom: 19
   }).addTo(map);
 
-  fetch('https://raw.githubusercontent.com/mappingsomething/Gulmohar/main/Gulmohar.geojson')
+  // 3. Load GeoJSON and add circle markers with popups
+  fetch('https://raw.githubusercontent.com/mappingsomething/Gulmohar/refs/heads/main/Gulmohar.geojson')
     .then(response => response.json())
     .then(data => {
       L.geoJSON(data, {
+        pointToLayer: function (feature, latlng) {
+          return L.circleMarker(latlng, {
+            radius: 8,
+            color: "#F9F7DC",
+            fillColor: "#FF8E88",
+            fillOpacity: 0.6,
+            weight: 1
+          });
+        },
         onEachFeature: function (feature, layer) {
           var props = feature.properties;
           if (props["image_emd"] && props["timestamp"]) {
-            var popupContent = `
+            var popupContent = 
               <b>Spotted:</b> ${props["timestamp"]}<br>
-              <img class="popup-img" src="${props["image_emd"]}" alt="Gulmohar Image" style="width:200px; margin-top:5px;" />
-            `;
+              <img class="popup-img" src="${props["image_emd"]}" alt="Gulmohar Image"/>
+            ;
             layer.bindPopup(popupContent);
           }
         }
       }).addTo(map);
-    })
-    .catch(error => console.error('Error loading GeoJSON:', error));
+    });
 </script>
 
 </body>
