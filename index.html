@@ -1,15 +1,18 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Mapping Flora - Gulmohar Map</title>
+  <title>Gulmohar Tree Map</title>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
   <style>
-    #map { height: 100vh; width: 100vw; }
+    #map {
+      height: 100vh;
+      width: 100vw;
+    }
 
     .leaflet-popup-content {
       width: 350px !important;
@@ -27,52 +30,55 @@
   </style>
 </head>
 <body>
-<div id="map"></div>
+  <div id="map"></div>
 
-<script>
-  const map = L.map('map').setView([12.9716, 77.5946], 13);
+  <script>
+    const map = L.map('map').setView([12.9716, 77.5946], 13);
 
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: '&copy; OpenStreetMap contributors'
-  }).addTo(map);
+    // Use Carto Voyager tiles only
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; <a href="https://carto.com/">CARTO</a> | &copy; OpenStreetMap contributors',
+      subdomains: 'abcd',
+      maxZoom: 19
+    }).addTo(map);
 
-  fetch("https://raw.githubusercontent.com/mappingsomething/Gulmohar/main/Gulmohar.geojson")
-    .then(res => res.json())
-    .then(data => {
-      L.geoJSON(data, {
-        pointToLayer: function (feature, latlng) {
-          return L.circleMarker(latlng, {
-            radius: 6,
-            fillColor: "#FF5733",
-            color: "#fff",
-            weight: 1,
-            opacity: 1,
-            fillOpacity: 0.8
-          });
-        },
-        onEachFeature: function (feature, layer) {
-          const props = feature.properties;
-          let popupContent = `<b>Spotted:</b> ${props.timestamp || 'Unknown'}<br>`;
+    // Load your GeoJSON
+    fetch("https://raw.githubusercontent.com/mappingsomething/Gulmohar/main/Gulmohar.geojson")
+      .then(res => res.json())
+      .then(data => {
+        L.geoJSON(data, {
+          pointToLayer: function (feature, latlng) {
+            return L.circleMarker(latlng, {
+              radius: 6,
+              fillColor: "#FF5733",
+              color: "#fff",
+              weight: 1,
+              opacity: 1,
+              fillOpacity: 0.8
+            });
+          },
+          onEachFeature: function (feature, layer) {
+            const props = feature.properties;
+            let popupContent = `<b>Spotted:</b> ${props.timestamp || 'Unknown'}<br>`;
 
-          if (props.image_emd) {
-            popupContent += `
-              <img 
-                src="${props.image_emd}" 
-                class="popup-img" 
-                alt="Gulmohar Tree"
-                referrerpolicy="no-referrer"
-                onerror="this.onerror=null;this.src='https://via.placeholder.com/300x200?text=Image+Unavailable';"
-              />
-            `;
-          } else {
-            popupContent += `<i>No image available</i>`;
+            if (props.image_emd) {
+              popupContent += `
+                <img 
+                  src="${props.image_emd}" 
+                  class="popup-img" 
+                  alt="Gulmohar Image"
+                  referrerpolicy="no-referrer"
+                  onerror="this.onerror=null;this.src='https://via.placeholder.com/350x200?text=Image+Unavailable';"
+                />
+              `;
+            } else {
+              popupContent += `<i>No image available</i>`;
+            }
+
+            layer.bindPopup(popupContent);
           }
-
-          layer.bindPopup(popupContent);
-        }
-      }).addTo(map);
-    });
-</script>
+        }).addTo(map);
+      });
+  </script>
 </body>
 </html>
