@@ -27,7 +27,7 @@
     maxZoom: 19
   }).addTo(map);
 
-  // 3. Load GeoJSON and add circle markers
+  // 3. Load GeoJSON and add circle markers with popups
   fetch('https://raw.githubusercontent.com/mappingsomething/Gulmohar/refs/heads/main/Gulmohar.geojson')
     .then(response => response.json())
     .then(data => {
@@ -35,17 +35,22 @@
         pointToLayer: function (feature, latlng) {
           return L.circleMarker(latlng, {
             radius: 8,
-            color: "#F9F7DC",       // border color
-            fillColor: "#FF8E88",   // fill color
+            color: "#F9F7DC",
+            fillColor: "#FF8E88",
             fillOpacity: 0.6,
             weight: 1
           });
         },
-        //onEachFeature: function (feature, layer) {
-          //if (feature.properties && feature.properties.photo) {
-           // layer.bindPopup(feature.properties.photo);
-          //}
-       // }
+        onEachFeature: function (feature, layer) {
+          const props = feature.properties;
+          if (props && props.Image_url && props.timestamp) {
+            const popupContent = `
+              <strong>Spotted:</strong> ${props.timestamp}<br>
+              <img src="${props.Image_url}" width="200">
+            `;
+            layer.bindPopup(popupContent);
+          }
+        }
       }).addTo(map);
     });
 </script>
