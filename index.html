@@ -10,26 +10,31 @@
   <div id="map"></div>
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script>
-    var map = L.map('map').setView([12.968, 77.600], 13);
+ <script>
+  var map = L.map('map').setView([12.9716, 77.5946], 13); // Adjust coordinates as needed
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19
-    }).addTo(map);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+  }).addTo(map);
 
-    var gulmoharData = {/* your full GeoJSON here */};
-
-    L.geoJSON(gulmoharData, {
-      onEachFeature: function (feature, layer) {
-        if (feature.properties && feature.properties.timestamp && feature.properties.image_emd) {
-          const popupContent = `
-            <b>Spotted:</b> ${feature.properties.timestamp}<br>
-            <img src="${feature.properties.image_emd}" alt="Gulmohar tree" width="200" />
-          `;
-          layer.bindPopup(popupContent);
+  fetch('https://raw.githubusercontent.com/mappingsomething/Gulmohar/main/Gulmohar.geojson')
+    .then(response => response.json())
+    .then(data => {
+      L.geoJSON(data, {
+        onEachFeature: function (feature, layer) {
+          var props = feature.properties;
+          if (props["image_emd"] && props["timestamp"]) {
+            var popupContent = `
+              <b>Spotted:</b> ${props["timestamp"]}<br>
+              <img class="popup-img" src="${props["image_emd"]}" alt="Gulmohar Image" style="width:200px; margin-top:5px;" />
+            `;
+            layer.bindPopup(popupContent);
+          }
         }
-      }
-    }).addTo(map);
-  </script>
+      }).addTo(map);
+    })
+    .catch(error => console.error('Error loading GeoJSON:', error));
+</script>
+
 </body>
 </html>
