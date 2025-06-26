@@ -43,10 +43,10 @@
         },
         onEachFeature: function (feature, layer) {
           const props = feature.properties;
-          if (props && props.Image_url && props.timestamp) {
+          if (props && props["Image url"] && props.timestamp) {
             const popupContent = `
               <strong>Spotted:</strong> ${props.timestamp}<br>
-              <img src="${props.Image_url}" width="200">
+              <img src="${props["Image url"]}" width="200">
             `;
             layer.bindPopup(popupContent);
           }
