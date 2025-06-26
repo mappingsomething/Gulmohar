@@ -3,7 +3,7 @@
 <head>
   <title>Gulmohar Tree Entries June 23, 2025</title>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -49,11 +49,13 @@
         onEachFeature: function (feature, layer) {
           var props = feature.properties;
           if (props["image_emd"] && props["timestamp"]) {
-            var popupContent = 
+            var popupContent = `
               <b>Spotted:</b> ${props["timestamp"]}<br>
-              <img class="popup-img" src="${props["image_emd"]}" alt="Gulmohar Image"/>
-            ;
+              <img class="popup-img" src="${props["image_emd"]}" alt="Gulmohar Image" />
+            `;
             layer.bindPopup(popupContent);
+          } else {
+            layer.bindPopup("Gulmohar spotted, details unavailable.");
           }
         }
       }).addTo(map);
