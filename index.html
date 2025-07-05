@@ -1,70 +1,117 @@
-<script>
-  const map = L.map('map').setView([12.9716, 77.5946], 13);
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gulmohar Tree Map</title>
 
-  // Base layer
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-    attribution: '&copy; <a href="https://carto.com/">CARTO</a> | &copy; OpenStreetMap contributors',
-    subdomains: 'abcd',
-    maxZoom: 19
-  }).addTo(map);
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 
-  // Load Gulmohar.geojson
-  fetch("https://raw.githubusercontent.com/mappingsomething/Gulmohar/main/Gulmohar.geojson")
-    .then(res => res.json())
-    .then(data => {
-      L.geoJSON(data, {
-        pointToLayer: function (feature, latlng) {
-          return L.circleMarker(latlng, {
-            radius: 6,
-            fillColor: "#F7B7BB",
-            color: "#fff",
-            weight: 1,
-            opacity: 1,
-            fillOpacity: 0.8
-          });
-        },
-        onEachFeature: function (feature, layer) {
-          const props = feature.properties;
-          if (props["image_emd"] && props["timestamp"]) {
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+    }
+
+    #map {
+      height: 100%;
+      width: 100%;
+    }
+
+    .leaflet-popup-content {
+      width: 350px !important;
+      max-width: 400px !important;
+    }
+
+    .popup-img {
+      width: 100%;
+      max-height: 300px;
+      object-fit: contain;
+      border-radius: 8px;
+      margin-top: 10px;
+      display: block;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="map"></div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <script>
+    const map = L.map('map').setView([12.9716, 77.5946], 13);
+
+    // Base layer
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; <a href="https://carto.com/">CARTO</a> | &copy; OpenStreetMap contributors',
+      subdomains: 'abcd',
+      maxZoom: 19
+    }).addTo(map);
+
+    // Gulmohar
+    fetch("https://mappingsomething.github.io/Gulmohar/Gulmohar.geojson")
+      .then(res => res.json())
+      .then(data => {
+        L.geoJSON(data, {
+          pointToLayer: function (feature, latlng) {
+            return L.circleMarker(latlng, {
+              radius: 6,
+              fillColor: "#F7B7BB",
+              color: "#fff",
+              weight: 1,
+              opacity: 1,
+              fillOpacity: 0.8
+            });
+          },
+          onEachFeature: function (feature, layer) {
+            const props = feature.properties;
+            if (props["image_emd"] && props["timestamp"]) {
+              const popupContent = `
+                <div style="max-width: 350px;">
+                  <b>Spotted:</b> ${props["timestamp"]}<br>
+                  <img src="${props["image_emd"]}" alt="Tree image" 
+                       style="width: 100%; border-radius: 8px; margin-top: 6px;"
+                       onerror="this.style.display='none'" />
+                </div>
+              `;
+              layer.bindPopup(popupContent, { maxWidth: 400 });
+            }
+          }
+        }).addTo(map);
+      });
+
+    // GulmoharBBMP
+    fetch("https://mappingsomething.github.io/Gulmohar/GulmoharBBMP.geojson")
+      .then(res => res.json())
+      .then(data => {
+        L.geoJSON(data, {
+          pointToLayer: function (feature, latlng) {
+            return L.circleMarker(latlng, {
+              radius: 6,
+              fillColor: "#FF686B",
+              color: "#fff",
+              weight: 1,
+              opacity: 1,
+              fillOpacity: 0.7
+            });
+          },
+          onEachFeature: function (feature, layer) {
+            const props = feature.properties;
             const popupContent = `
               <div style="max-width: 350px;">
-                <b>Spotted:</b> ${props["timestamp"]}<br>
-                <img src="${props["image_emd"]}" alt="Tree image" 
-                     style="width: 100%; border-radius: 8px; margin-top: 6px;"
-                     onerror="this.style.display='none'" />
+                <b>Tree ID:</b> ${props["KGISTreeID"] || "Unknown"}<br>
+                <b>Ward:</b> ${props["ward"] || "NA"}
               </div>
             `;
             layer.bindPopup(popupContent, { maxWidth: 400 });
           }
-        }
-      }).addTo(map);
-    });
-
-  // Load GulmoharBBMP.geojson
-  fetch("https://raw.githubusercontent.com/mappingsomething/Gulmohar/main/GulmoharBBMP.geojson")
-    .then(res => res.json())
-    .then(data => {
-      L.geoJSON(data, {
-        pointToLayer: function (feature, latlng) {
-          return L.circleMarker(latlng, {
-            radius: 6,
-            fillColor: "#FF686B",
-            color: "#fff",
-            weight: 1,
-            opacity: 1,
-            fillOpacity: 0.7
-          });
-        },
-        onEachFeature: function (feature, layer) {
-          const props = feature.properties;
-          const popupContent = `
-            <div style="max-width: 350px;">
-              <b>Tree ID:</b> ${props["KGISTreeID"] || "Unknown"}<br>
-              <b>Ward:</b> ${props["ward"] || "NA"}
-            </div>
-          `;
-          layer.bindPopup(popupContent, { maxWidth: 400 });
-        }
-      }).addTo(map);
-    });
-</script>
+        }).addTo(map);
+      });
+  </script>
+</body>
+</html>
