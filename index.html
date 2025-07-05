@@ -45,8 +45,8 @@
     .then(res => res.json())
     .then(data => {
       L.geoJSON(data, {
-        pointToLayer: function (feature, latlng) {
-          return L.circleMarker(latlng, {
+        pointToLayer: function (feature, Latlong) {
+          return L.circleMarker(Latlong, {
             radius: 6,
             fillColor: "#FF686B", // Blue
             color: "#fff",
@@ -59,7 +59,7 @@
           const props = feature.properties;
           const popupContent = `
             <div style="max-width: 350px;">
-              <b>Tree ID:</b> ${props["id"] || "Unknown"}<br>
+              <b>Tree ID:</b> ${props["KGISTreeID"] || "Unknown"}<br>
               <b>Ward:</b> ${props["ward"] || "NA"}
             </div>
           `;
