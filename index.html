@@ -9,14 +9,14 @@
   }).addTo(map);
 
   // Load Gulmohar.geojson
-  fetch("https://raw.githubusercontent.com/mappingsomething/Gulmohar/refs/heads/main/Gulmohar.geojson")
+  fetch("https://raw.githubusercontent.com/mappingsomething/Gulmohar/main/Gulmohar.geojson")
     .then(res => res.json())
     .then(data => {
       L.geoJSON(data, {
         pointToLayer: function (feature, latlng) {
           return L.circleMarker(latlng, {
             radius: 6,
-            fillColor: "#F7B7BB", // Orange-red
+            fillColor: "#F7B7BB",
             color: "#fff",
             weight: 1,
             opacity: 1,
@@ -41,14 +41,14 @@
     });
 
   // Load GulmoharBBMP.geojson
-  fetch("https://raw.githubusercontent.com/mappingsomething/Gulmohar/refs/heads/main/GulmoharBBMP.geojson")
+  fetch("https://raw.githubusercontent.com/mappingsomething/Gulmohar/main/GulmoharBBMP.geojson")
     .then(res => res.json())
     .then(data => {
       L.geoJSON(data, {
-        pointToLayer: function (feature, Latlong) {
-          return L.circleMarker(Latlong, {
+        pointToLayer: function (feature, latlng) {
+          return L.circleMarker(latlng, {
             radius: 6,
-            fillColor: "#FF686B", // Blue
+            fillColor: "#FF686B",
             color: "#fff",
             weight: 1,
             opacity: 1,
