@@ -21,18 +21,14 @@
       width: 100%;
     }
 
+    .leaflet-control-layers {
+      right: 10px !important;
+      left: auto !important;
+    }
+
     .leaflet-popup-content {
       width: 350px !important;
       max-width: 400px !important;
-    }
-
-    .popup-img {
-      width: 100%;
-      max-height: 300px;
-      object-fit: contain;
-      border-radius: 8px;
-      margin-top: 10px;
-      display: block;
     }
   </style>
 </head>
@@ -53,15 +49,19 @@
       maxZoom: 19
     }).addTo(map);
 
-    // Gulmohar
+    // Create empty LayerGroups for toggling
+    const communityLayer = L.layerGroup();
+    const bbmpLayer = L.layerGroup();
+
+    // Load Gulmohar.geojson (Community mapped)
     fetch("https://mappingsomething.github.io/Gulmohar/Gulmohar.geojson")
       .then(res => res.json())
       .then(data => {
-        L.geoJSON(data, {
+        const geojsonLayer = L.geoJSON(data, {
           pointToLayer: function (feature, latlng) {
             return L.circleMarker(latlng, {
               radius: 6,
-              fillColor: "#F7B7BB",
+              fillColor: "#FF686B",
               color: "#fff",
               weight: 1,
               opacity: 1,
@@ -82,14 +82,16 @@
               layer.bindPopup(popupContent, { maxWidth: 400 });
             }
           }
-        }).addTo(map);
+        });
+        geojsonLayer.addTo(communityLayer);
+        communityLayer.addTo(map); // Add by default
       });
 
-    // GulmoharBBMP
+    // Load GulmoharBBMP.geojson (BBMP mapped)
     fetch("https://mappingsomething.github.io/Gulmohar/GulmoharBBMP.geojson")
       .then(res => res.json())
       .then(data => {
-        L.geoJSON(data, {
+        const geojsonLayer = L.geoJSON(data, {
           pointToLayer: function (feature, latlng) {
             return L.circleMarker(latlng, {
               radius: 6,
@@ -110,8 +112,18 @@
             `;
             layer.bindPopup(popupContent, { maxWidth: 400 });
           }
-        }).addTo(map);
+        });
+        geojsonLayer.addTo(bbmpLayer);
+        bbmpLayer.addTo(map); // Add by default
       });
+
+    // Add layer control on the right
+    const overlayMaps = {
+      "🧭 Community Mapped Gulmohars": communityLayer,
+      "🌳 BBMP Mapped Gulmohars": bbmpLayer
+    };
+
+    L.control.layers(null, overlayMaps, { collapsed: false }).addTo(map);
   </script>
 </body>
 </html>
