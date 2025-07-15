@@ -2,34 +2,21 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Gulmohar Tree Map</title>
 
   <!-- Leaflet CSS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+
+  <!-- MarkerCluster CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css"/>
 
   <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      width: 100%;
-    }
-
-    #map {
-      height: 100%;
-      width: 100%;
-    }
-
-    .leaflet-control-layers {
-      right: 10px !important;
-      left: auto !important;
-    }
-
-    .leaflet-popup-content {
-      width: 350px !important;
-      max-width: 400px !important;
-    }
+    html, body { margin: 0; padding: 0; height: 100%; width: 100%; }
+    #map { height: 100%; width: 100%; }
+    .leaflet-control-layers { right: 10px !important; left: auto !important; }
+    .leaflet-popup-content { width: 350px !important; max-width: 400px !important; }
   </style>
 </head>
 
@@ -38,6 +25,8 @@
 
   <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <!-- MarkerCluster JS -->
+  <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
 
   <script>
     const map = L.map('map').setView([12.9716, 77.5946], 13);
@@ -49,11 +38,11 @@
       maxZoom: 19
     }).addTo(map);
 
-    // Create empty LayerGroups for toggling
-    const communityLayer = L.layerGroup();
-    const bbmpLayer = L.layerGroup();
+    // Cluster Groups for toggling
+    const communityCluster = L.markerClusterGroup();
+    const bbmpCluster = L.markerClusterGroup();
 
-    // Load Gulmohar.geojson (Community mapped)
+    // Community Mapped Layer
     fetch("https://mappingsomething.github.io/Gulmohar/Gulmohar.geojson")
       .then(res => res.json())
       .then(data => {
@@ -83,11 +72,11 @@
             }
           }
         });
-        geojsonLayer.addTo(communityLayer);
-        communityLayer.addTo(map); // Add by default
+        communityCluster.addLayer(geojsonLayer);
+        communityCluster.addTo(map);
       });
 
-    // Load GulmoharBBMP.geojson (BBMP mapped)
+    // BBMP Mapped Layer
     fetch("https://mappingsomething.github.io/Gulmohar/GulmoharBBMP.geojson")
       .then(res => res.json())
       .then(data => {
@@ -113,17 +102,18 @@
             layer.bindPopup(popupContent, { maxWidth: 400 });
           }
         });
-        geojsonLayer.addTo(bbmpLayer);
-        bbmpLayer.addTo(map); // Add by default
+        bbmpCluster.addLayer(geojsonLayer);
+        bbmpCluster.addTo(map);
       });
 
-    // Add layer control on the right
+    // Add Layer Control
     const overlayMaps = {
-      "Community Mapped Gulmohars": communityLayer,
-      "BBMP Mapped Gulmohars": bbmpLayer
+      "Community Mapped Gulmohars": communityCluster,
+      "BBMP Mapped Gulmohars": bbmpCluster
     };
 
     L.control.layers(null, overlayMaps, { collapsed: false }).addTo(map);
   </script>
 </body>
 </html>
+
