@@ -7,7 +7,6 @@
 
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-
   <!-- MarkerCluster CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css"/>
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css"/>
@@ -17,6 +16,13 @@
     #map { height: 100%; width: 100%; }
     .leaflet-control-layers { right: 10px !important; left: auto !important; }
     .leaflet-popup-content { width: 350px !important; max-width: 400px !important; }
+    .custom-marker { 
+      background: #FF686B; 
+      width: 12px; 
+      height: 12px; 
+      border-radius: 50%; 
+      border: 1px solid #fff; 
+    }
   </style>
 </head>
 
@@ -31,89 +37,76 @@
   <script>
     const map = L.map('map').setView([12.9716, 77.5946], 13);
 
-    // Base layer
     L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
       attribution: '&copy; <a href="https://carto.com/">CARTO</a> | &copy; OpenStreetMap contributors',
       subdomains: 'abcd',
       maxZoom: 19
     }).addTo(map);
 
-    // Cluster Groups for toggling
     const communityCluster = L.markerClusterGroup();
     const bbmpCluster = L.markerClusterGroup();
+
+    // Custom Marker Icon
+    function createCustomMarker() {
+      return L.divIcon({
+        className: '',
+        html: '<div class="custom-marker"></div>',
+        iconSize: [12, 12]
+      });
+    }
 
     // Community Mapped Layer
     fetch("https://mappingsomething.github.io/Gulmohar/Gulmohar.geojson")
       .then(res => res.json())
       .then(data => {
-        const geojsonLayer = L.geoJSON(data, {
-          pointToLayer: function (feature, latlng) {
-            return L.circleMarker(latlng, {
-              radius: 6,
-              fillColor: "#FF686B",
-              color: "#fff",
-              weight: 1,
-              opacity: 1,
-              fillOpacity: 0.8
-            });
-          },
-          onEachFeature: function (feature, layer) {
-            const props = feature.properties;
-            if (props["image_emd"] && props["timestamp"]) {
-              const popupContent = `
-                <div style="max-width: 350px;">
-                  <b>Spotted:</b> ${props["timestamp"]}<br>
-                  <img src="${props["image_emd"]}" alt="Tree image" 
-                       style="width: 100%; border-radius: 8px; margin-top: 6px;"
-                       onerror="this.style.display='none'" />
-                </div>
-              `;
-              layer.bindPopup(popupContent, { maxWidth: 400 });
-            }
+        data.features.forEach(feature => {
+          const coords = feature.geometry.coordinates;
+          const marker = L.marker([coords[1], coords[0]], { icon: createCustomMarker() });
+
+          if (feature.properties["image_emd"] && feature.properties["timestamp"]) {
+            const popupContent = `
+              <div style="max-width: 350px;">
+                <b>Spotted:</b> ${feature.properties["timestamp"]}<br>
+                <img src="${feature.properties["image_emd"]}" alt="Tree image" 
+                     style="width: 100%; border-radius: 8px; margin-top: 6px;"
+                     onerror="this.style.display='none'" />
+              </div>
+            `;
+            marker.bindPopup(popupContent, { maxWidth: 400 });
           }
+
+          communityCluster.addLayer(marker);
         });
-        communityCluster.addLayer(geojsonLayer);
-        communityCluster.addTo(map);
+        map.addLayer(communityCluster);
       });
 
     // BBMP Mapped Layer
     fetch("https://mappingsomething.github.io/Gulmohar/GulmoharBBMP.geojson")
       .then(res => res.json())
       .then(data => {
-        const geojsonLayer = L.geoJSON(data, {
-          pointToLayer: function (feature, latlng) {
-            return L.circleMarker(latlng, {
-              radius: 6,
-              fillColor: "#FF686B",
-              color: "#fff",
-              weight: 1,
-              opacity: 1,
-              fillOpacity: 0.7
-            });
-          },
-          onEachFeature: function (feature, layer) {
-            const props = feature.properties;
-            const popupContent = `
-              <div style="max-width: 350px;">
-                <b>Tree ID:</b> ${props["KGISTreeID"] || "Unknown"}<br>
-                <b>Ward:</b> ${props["ward"] || "NA"}
-              </div>
-            `;
-            layer.bindPopup(popupContent, { maxWidth: 400 });
-          }
+        data.features.forEach(feature => {
+          const coords = feature.geometry.coordinates;
+          const marker = L.marker([coords[1], coords[0]], { icon: createCustomMarker() });
+
+          const popupContent = `
+            <div style="max-width: 350px;">
+              <b>Tree ID:</b> ${feature.properties["KGISTreeID"] || "Unknown"}<br>
+              <b>Ward:</b> ${feature.properties["ward"] || "NA"}
+            </div>
+          `;
+          marker.bindPopup(popupContent, { maxWidth: 400 });
+
+          bbmpCluster.addLayer(marker);
         });
-        bbmpCluster.addLayer(geojsonLayer);
-        bbmpCluster.addTo(map);
+        map.addLayer(bbmpCluster);
       });
 
-    // Add Layer Control
+    // Layer Control
     const overlayMaps = {
       "Community Mapped Gulmohars": communityCluster,
       "BBMP Mapped Gulmohars": bbmpCluster
     };
-
     L.control.layers(null, overlayMaps, { collapsed: false }).addTo(map);
   </script>
 </body>
 </html>
-
